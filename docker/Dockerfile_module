@@ -1,0 +1,7 @@
+FROM rust:1.78.0 AS builder
+COPY . /price-oracle-sc-solana
+WORKDIR /price-oracle-sc-solana
+RUN cargo build --package price-publisher --release
+
+FROM alpine:3.14
+COPY --from=builder /price-oracle-sc-solana/target/release/libprice_publisher.so /

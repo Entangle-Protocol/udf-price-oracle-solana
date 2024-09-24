@@ -1,0 +1,13 @@
+solana:
+    read_rpcs:
+        -   url: http://solana:8899
+            ratelimit: 4
+    write_rpcs:
+        -   url: http://solana:8899
+            ratelimit: 1
+    commitment: confirmed
+    check_balance_period: 100
+    warn_balance_lamports: 2000000000
+    suspend_balance_lamports: 1000000000
+    executor_attempts: 2
+    chain_id: 11100000000000000501

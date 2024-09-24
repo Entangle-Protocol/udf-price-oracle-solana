@@ -1,0 +1,27 @@
+[package]
+name = "udf-solana"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+# Important to name program as udf_solana! Anchor might not generate IDL for other name
+name = "udf_solana"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+mainnet = []
+default = []
+
+[dependencies]
+anchor-lang = { version = "=0.29", features = ["init-if-needed"] }
+ethabi = "18.0"
+derive_more = "0.99"
+hash-db = { version = "0.16", default-features = false }
+hex = "0.4"
+log = "0.4.22"
+sha3 = { version = "0.10.6", default-features = false }

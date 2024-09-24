@@ -1,0 +1,4 @@
+[submodule "solana-tools"]
+	path = solana-tools
+	url = https://github.com/Entangle-Protocol/solana-tools.git
+	branch = main
