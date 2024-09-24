@@ -40,7 +40,7 @@ pub mod udf_solana {
     #[cfg(feature = "mainnet")]
     pub const DEPLOYER: &str = "BMBeWpWc16LQNtqw4JxjSWTf5E9mUBhhPzuTmaVFvxrf";
     #[cfg(not(feature = "mainnet"))]
-    pub const DEPLOYER: &str = "J85q2bNo4FadDqDmUYPLKav14QRexShwEQXxhbkuvEP2";
+    pub const DEPLOYER: &str = "2NNm83t5mF28YZYo3SGyitVHQGSLoppJ4RQnRhvRB8ZY";
 
     pub const MAX_TRANSMITTERS: usize = 20;
     pub const MAX_EXECUTORS: usize = 20;
