@@ -9,13 +9,13 @@ sources.
 #### mainnet
 
 ```
-RUSTFLAGS="--cfg feature=\"mainnet\"" anchor  build  -p udf_solana
+RUSTFLAGS="--cfg feature=\"mainnet\"" anchor build
 ```
 
 #### devnet, localnet
 
 ```
-RUSTFLAGS="--cfg feature=\"mainnet\"" anchor  build  -p udf_solana
+anchor build
 ```
 
 ## Building publisher lib
@@ -38,8 +38,7 @@ solana-test-validator  --reset --config solana_config.yml
 ### Deploying UDF price oracle contract
 
 ```shell
-anchor deploy --program-name udf-solana --provider.cluster localnet --provider.wallet keys/owner.json --program-keypair keys/udf_solana-keypair.json
-anchor deploy --program-name photon_mock --provider.cluster localnet --provider.wallet keys/owner.json --program-keypair keys/photon-keypair.json
+anchor deploy --provider.cluster localnet --program-name udf-solana --program-keypair keys/udf_solana-keypair.json --provider.wallet keys/owner.json && anchor deploy --provider.cluster localnet --program-name price_consumer --program-keypair keys/price-consumer.json --provider.wallet keys/owner.json && anchor deploy --provider.cluster localnet --program-name photon_mock --program-keypair keys/photon-keypair.json --provider.wallet keys/owner.json
 ```
 
 ### Running tests
