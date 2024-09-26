@@ -6,13 +6,21 @@ sources.
 
 ## Build udf_solana
 
+The following command not only builds the udf_solana but also compiles both the photon_mock and price_consumer,
+which are intended for testing purposes.
+
 #### mainnet
+
+The `mainnet` build is distinct as it embeds the administrator key directly within the code.
 
 ```
 RUSTFLAGS="--cfg feature=\"mainnet\"" anchor build
 ```
 
 #### devnet, localnet
+
+The default build is distinct in that it embeds the administrator key, which is derived from keys/owner.json,
+directly within the code.
 
 ```
 anchor build
@@ -28,6 +36,13 @@ cargo build --release -Z unstable-options -p price-publisher --out-dir ../pull-u
 ```
 
 ## Testing udf locally
+
+Testing the udf_solana program allows us to ensure it works in the same way on the mainnet. It assumes starting
+the solana validator locally, deploying programs in it and running tests.
+
+It is also possible to run standalone sample scripts provided withing the udf-samples on the github.
+The first one is invoking the price-consumer program to fetch distributes within the PUSH model prices on-chain.
+The second one is getting price, ensuring that price onchain withing the PULL model.
 
 ### Starting Solana test validator
 
@@ -49,13 +64,16 @@ anchor test --skip-deploy --skip-build --skip-local-validator --provider.wallet 
 
 ### Publishing anchor IDL
 
-Publishing anchor IDL for price consumer sample program results in storing this IDL on-chain at the program derived
-address derived from initial program address, so it gets possible for the price consumer program it to be called from
-a client without a need to keep the IDL within the code.
+Publishing the Anchor IDL for the price consumer sample program stores the IDL on-chain at the program-derived address
+(PDA) based on the program's initial address. This allows clients to interact with the price consumer program without
+embedding the IDL in the client code.
 
 ```shell
 anchor idl init --provider.cluster localnet --provider.wallet keys/owner.json --filepath target/idl/price_consumer.json 3r5ixGQu8DRmJWgFEjwnDUQ6yasfYFXDsUbqkA6gkRtv
 Idl account created: 4f64qnq9kq1cYcoRgoQZbi1pjMxj3ZPwUNEijm4oVh6Y
+
+anchor idl init --provider.cluster localnet --provider.wallet keys/owner.json --filepath target/idl/udf_solana.json 7HramSnctpbXqZ4SEzqvqteZdMdj3tEB2c9NT7egPQi7
+Idl account created: GHbMd8b8AkXcyaHsRx7dKHSf5QR1RJYbi1ngaY9aXCz9
 ```
 
 ### Checking UDF protocol info account
