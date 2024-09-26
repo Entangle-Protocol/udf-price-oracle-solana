@@ -47,6 +47,17 @@ anchor deploy --provider.cluster localnet --program-name udf-solana --program-ke
 anchor test --skip-deploy --skip-build --skip-local-validator --provider.wallet keys/owner.json
 ```
 
+### Publishing anchor IDL
+
+Publishing anchor IDL for price consumer sample program results in storing this IDL on-chain at the program derived
+address derived from initial program address, so it gets possible for the price consumer program it to be called from
+a client without a need to keep the IDL within the code.
+
+```shell
+anchor idl init --provider.cluster localnet --provider.wallet keys/owner.json --filepath target/idl/price_consumer.json 3r5ixGQu8DRmJWgFEjwnDUQ6yasfYFXDsUbqkA6gkRtv
+Idl account created: 4f64qnq9kq1cYcoRgoQZbi1pjMxj3ZPwUNEijm4oVh6Y
+```
+
 ### Checking UDF protocol info account
 
 ```shell
