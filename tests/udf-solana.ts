@@ -367,7 +367,7 @@ describe("udf-solana", () => {
         const getLastPriceTx = await consumer_program.methods.consumePrice(dataKey)
             .accounts({
                 signer: owner.publicKey,
-                priceOracle: udf_program.programId,
+                priceOracle: udf_program_id,
                 latestUpdate: latestUpdatePda,
             })
             .signers([owner])
