@@ -23,16 +23,9 @@ pub type EthAddress = [u8; 20];
 
 pub mod hashes {}
 
-#[cfg(not(feature = "mainnet"))]
-const UDF_PROTOCOL_ID: &[u8] = b"universal-data-feeds3\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
-
-#[cfg(feature = "mainnet")]
-const UDF_PROTOCOL_ID: &[u8] = b"universal-data-feeds\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
-
 #[program]
 pub mod udf_solana {
     use super::*;
-    use anchor_lang::solana_program::program::set_return_data;
 
     pub const ROOT: &[u8] = b"UDF0";
     pub const PHOTON_ROOT: &[u8] = b"r0";
@@ -86,21 +79,6 @@ pub mod udf_solana {
 
         Ok(())
     }
-
-    pub fn last_price(ctx: Context<'_, '_, '_, '_, LastPrice>, _asset: String) -> Result<()> {
-        let return_data = (ctx.accounts.last_price.data, ctx.accounts.last_price.data_timestamp)
-            .try_to_vec()
-            .expect("Expected return_data to be serialized with borsh");
-        set_return_data(&return_data);
-        Ok(())
-    }
-}
-
-#[derive(Accounts)]
-#[instruction(asset: String)]
-pub struct LastPrice<'info> {
-    #[account(seeds = [ROOT, b"LAST_UPDATE", UDF_PROTOCOL_ID, asset.as_bytes()], bump)]
-    last_price: Account<'info, LatestUpdate>,
 }
 
 pub fn update_asset<'info>(
