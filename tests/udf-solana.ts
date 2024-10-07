@@ -21,8 +21,8 @@ const GOV_PROTOCOL_ID = Buffer.from(
 const UDF_ROOT = utf8.encode("UDF0");
 const PHOTON_ROOT = utf8.encode("r0");
 
-type MultipleUpdateData = anchor.IdlTypes<UdfSolana>["MultipleUpdateData"];
-type LastPriceData = anchor.IdlTypes<UdfSolana>["LastPriceData"];
+type MultipleUpdateData = anchor.IdlTypes<UdfSolana>["MultipleUpdateMessage"];
+type LastPriceData = anchor.IdlTypes<UdfSolana>["LastPriceMessage"];
 type DataFeed = anchor.IdlTypes<UdfSolana>["DataFeed"];
 
 describe("udf-solana", () => {
