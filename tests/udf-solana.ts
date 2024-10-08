@@ -364,6 +364,27 @@ describe("udf-solana", () => {
             [UDF_ROOT, utf8.encode("LAST_UPDATE"), UDF_PROTOCOL_ID, dataKey],
             udf_program_id
         )[0];
+        let consumePriceSubscriptionId: number;
+        const eventPromise: Promise<void> = new Promise((resolve, reject) => {
+            consumePriceSubscriptionId = consumer_program.addEventListener(
+                "ConsumePriceEvent",
+                (event) => {
+                    try {
+                        assert(event.timestamp.eq(new anchor.BN(1723502724)));
+                        assert.deepEqual(event.asset, "NGL/USD");
+                        assert(event.price.eq(new BN("1cd7dccedfae367", "hex")));
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                },
+            );
+
+            setTimeout(() => {
+                reject(new Error("Event did not fire within timeout"));
+            }, 5000);
+        });
+
         const getLastPriceTx = await consumer_program.methods.consumePrice(dataKey)
             .accounts({
                 signer: owner.publicKey,
@@ -373,6 +394,9 @@ describe("udf-solana", () => {
             .signers([owner])
             .rpc();
         console.log("Consume tx signature", getLastPriceTx);
+
+        await eventPromise;
+        consumer_program.removeEventListener(consumePriceSubscriptionId);
     })
 });
 
