@@ -2918,6 +2918,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "price-consumer-pull"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "hex",
+]
+
+[[package]]
 name = "price-publisher"
 version = "0.1.0"
 dependencies = [

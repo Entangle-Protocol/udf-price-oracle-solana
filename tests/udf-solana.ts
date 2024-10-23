@@ -2,11 +2,23 @@ import * as anchor from "@coral-xyz/anchor";
 import { UdfSolana } from "../target/types/udf_solana";
 import { PhotonMock } from "../target/types/photon_mock";
 import { PriceConsumer } from "../target/types/price_consumer";
+import { PriceConsumerPull } from "../target/types/price_consumer_pull";
 import { utf8 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { Program, web3 } from "@coral-xyz/anchor";
-import { assert } from "chai";
-import { base64 } from "ethers/lib/utils";
+
+import { fetchPriceFeed, UpdateResponse } from "./util"
 import BN from "bn.js";
+import { base64 } from "ethers/lib/utils";
+import * as assert from "node:assert";
+
+
+function decodeBase64(base64: string): string {
+    const buffer = Buffer.from(base64, 'base64');
+    const value = buffer.readBigUInt64BE(buffer.length - 8);
+    console.log("value", value);
+    return (value).toString();
+}
+
 
 const UDF_PROTOCOL_ID = Buffer.from(
     utf8.encode(
@@ -20,18 +32,23 @@ const GOV_PROTOCOL_ID = Buffer.from(
 );
 const UDF_ROOT = utf8.encode("UDF0");
 const PHOTON_ROOT = utf8.encode("r0");
+const CONSUMER_POOL_ROOT = utf8.encode("CONSUMER_PULL");
+
+const FinalizedSnapUrl = "https://pricefeed.entangle.fi";
+const FinalizedSourceID = "prices-feed1";
 
 type MultipleUpdateData = anchor.IdlTypes<UdfSolana>["MultipleUpdateData"];
 type LastPriceData = anchor.IdlTypes<UdfSolana>["LastPriceData"];
 type DataFeed = anchor.IdlTypes<UdfSolana>["DataFeed"];
 
+
 describe("udf-solana", () => {
 
     anchor.setProvider(anchor.AnchorProvider.env());
-
     const udf_program = anchor.workspace.UdfSolana as Program<UdfSolana>;
     const ccm_program = anchor.workspace.PhotonMock as Program<PhotonMock>;
     const consumer_program = anchor.workspace.PriceConsumer as Program<PriceConsumer>;
+    const consumer_pull_program = anchor.workspace.PriceConsumerPull as Program<PriceConsumerPull>
 
     const govExecutor = anchor.web3.Keypair.fromSecretKey(Uint8Array.from(require("../keys/gov-executor.json")));
     const owner = anchor.web3.Keypair.fromSecretKey(Uint8Array.from(require("../keys/owner.json")));
@@ -283,7 +300,91 @@ describe("udf-solana", () => {
         assert.ok(latestUpdate.dataTimestamp.eq(timestamp1));
     });
 
-    it("Get last price", async () => {
+    it.skip("Fetch data feed and verify it through the pull consumer", async () => {
+        const asset = "BTC/USD";
+        const url = new URL(`${FinalizedSnapUrl}/spotters/${FinalizedSourceID}`);
+        url.searchParams.append('assets', asset);
+
+        // Make the request to finalized-data-snap
+        const updateRes = await fetchPriceFeed(url.toString());
+        if (updateRes.calldata.feeds.length === 0) {
+            throw new Error('No feeds found');
+        }
+
+        let origin_feed = updateRes.calldata.feeds[0];
+        let utf8Encode = new TextEncoder();
+        const dataKey1 = new Uint8Array(32);
+        dataKey1.set(utf8Encode.encode(origin_feed.key));
+
+        let timestamp = new anchor.BN(origin_feed.value.timestamp);
+        let dataFeed1: DataFeed = {
+            timestamp: timestamp,
+            dataKey: Array.from(dataKey1),
+            data: Array.from(origin_feed.value.data),
+            merkleProof: origin_feed.merkleProofs.map(proof => {
+                return Array.from(Buffer.from(proof, 'base64'));
+            })
+        };
+
+        let signatures = updateRes.calldata.signatures.map(signature => {
+            return {
+                v: signature.V,
+                r: Buffer.from(signature.R.substring(2), "hex"),
+                s: Buffer.from(signature.S.substring(2), "hex")
+            };
+        });
+
+        let merkleRoot = Array.from(Buffer.from(updateRes.calldata.merkleRoot.substring(2), "hex"));
+        let lastPriceData: LastPriceData = {
+            dataFeed: dataFeed1,
+            signatures: signatures,
+            merkleRoot: merkleRoot
+        }
+
+        const computeBudgetIx = web3.ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
+        let verifyPriceTx = new web3.Transaction();
+        verifyPriceTx.add(computeBudgetIx);
+
+        let latestUpdatePda = web3.PublicKey.findProgramAddressSync(
+            [UDF_ROOT, utf8.encode("LAST_UPDATE"), UDF_PROTOCOL_ID, dataKey1],
+            udf_program.programId
+        )[0];
+        console.log("publisher:", publisher.publicKey.toBase58())
+        console.log("price oracle:", udf_program.programId.toBase58())
+        console.log("config: ", udfConfig.toBase58())
+        console.log("protocol info: ", udfProtocolInfo.toBase58())
+        console.log("latest update: ", latestUpdatePda.toBase58())
+
+        const verifyPriceIx = await consumer_pull_program.methods.verifyPrice(lastPriceData)
+            .accounts({
+                    publisher: publisher.publicKey,
+                    priceOracle: udf_program.programId,
+                    config: udfConfig,
+                    protocolInfo: udfProtocolInfo,
+                    latestUpdate: latestUpdatePda,
+                    systemProgram: web3.SystemProgram.programId
+                }
+            )
+            .signers([publisher]).instruction();
+        verifyPriceTx.add(verifyPriceIx);
+        const signature = await consumer_pull_program.provider.sendAndConfirm(verifyPriceTx, [publisher], { skipPreflight: false });
+
+        console.log("Verify price transaction signature", signature);
+
+        const result = await consumer_pull_program.provider.simulate(verifyPriceTx)
+        const resultNum = new BN(base64.decode(result.returnData.data[0]), 10, "be");
+        const divisor = new BN("1000000000000000000", 10);
+        const int = parseFloat(resultNum.div(divisor).toString())
+        const reminder = parseFloat(resultNum.mod(divisor).toString(10)) / parseFloat(divisor.toString(10));
+        console.log("Last ", origin_feed.key, " price is:", int + reminder)
+        const latestUpdate = await udf_program.account.latestUpdate.fetch(latestUpdatePda);
+        assert.deepEqual(latestUpdate.dataKey, Array.from(dataKey1));
+        assert.deepEqual(latestUpdate.data, Array.from(origin_feed.value.data));
+        assert.ok(latestUpdate.dataTimestamp.eq(timestamp));
+    })
+
+
+    it("Verify price through the pull consumer", async () => {
         let utf8Encode = new TextEncoder();
 
         const dataKey = new Uint8Array(32);
@@ -325,24 +426,28 @@ describe("udf-solana", () => {
         }
 
         const computeBudgetIx = web3.ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
-        let getLastPriceTx = new web3.Transaction();
-        getLastPriceTx.add(computeBudgetIx);
-
-        const getLastPriceIx = await udf_program.methods.getLastPrice(lastPriceData)
+        let verifyPriceTx = new web3.Transaction();
+        verifyPriceTx.add(computeBudgetIx);
+        // console.log("publisher:", publisher.publicKey.toBase58())
+        // console.log("price oracle:", udf_program.programId.toBase58())
+        // console.log("protocol info: ", udfProtocolInfo.toBase58())
+        const verifyPriceIx = await consumer_pull_program.methods.verifyPrice(lastPriceData)
             .accounts({
-                publisher: publisher.publicKey,
-                config: udfConfig,
-                protocolInfo: udfProtocolInfo,
-                systemProgram: web3.SystemProgram.programId
-            })
-            .remainingAccounts([{ pubkey: latestUpdatePda, isSigner: false, isWritable: true }])
+                    publisher: publisher.publicKey,
+                    priceOracle: udf_program.programId,
+                    config: udfConfig,
+                    protocolInfo: udfProtocolInfo,
+                    latestUpdate: latestUpdatePda,
+                    systemProgram: web3.SystemProgram.programId
+                }
+            )
             .signers([publisher]).instruction();
-        getLastPriceTx.add(getLastPriceIx);
+        verifyPriceTx.add(verifyPriceIx);
 
-        const signature = await udf_program.provider.sendAndConfirm(getLastPriceTx, [publisher]);
-        console.log("Get last price transaction signature", signature);
+        const signature = await consumer_pull_program.provider.sendAndConfirm(verifyPriceTx, [publisher]);
+        console.log("Verify price transaction signature", signature);
 
-        const result = await udf_program.provider.simulate(getLastPriceTx)
+        const result = await consumer_pull_program.provider.simulate(verifyPriceTx)
         const resultNum = new BN(base64.decode(result.returnData.data[0]), 10, "be");
         const divisor = new BN("1000000000000000000", 10);
         const int = parseFloat(resultNum.div(divisor).toString())

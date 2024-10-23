@@ -16,6 +16,7 @@ pub mod photon_mock {
         for (i, k) in transmitters.into_iter().enumerate() {
             ctx.accounts.protocol_info.transmitters[i] = k;
         }
+        ctx.accounts.protocol_info.consensus_target_rate = 10000;
         Ok(())
     }
 }

@@ -82,6 +82,7 @@ feeds are managed and validated on the Solana blockchain.
 ```shell
 anchor deploy --provider.cluster localnet --program-name udf-solana --program-keypair keys/udf_solana-keypair.json --provider.wallet keys/owner.json && \
 anchor deploy --provider.cluster localnet --program-name price_consumer --program-keypair keys/price-consumer.json --provider.wallet keys/owner.json && \
+anchor deploy --provider.cluster localnet --program-name price_consumer_pull --program-keypair keys/price_consumer_pull-keypair.json --provider.wallet keys/owner.json && \
 anchor deploy --provider.cluster localnet --program-name photon_mock --program-keypair keys/photon-keypair.json --provider.wallet keys/owner.json
 ```
 

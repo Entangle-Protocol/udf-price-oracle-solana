@@ -7,6 +7,7 @@ skip-lint = false
 [programs.localnet]
 photon_mock = "pccm961CjaR7T7Hcht9omrXQb9w54ntJo95FFT7N9AJ"
 price-consumer = "3r5ixGQu8DRmJWgFEjwnDUQ6yasfYFXDsUbqkA6gkRtv"
+price-consumer-pull = "GHzaqPXQUSQ4AD9c7w7dgA3LR4ztZYTDGKqs5E2JZTwJ"
 udf_solana = "75JuvUeLhMUHFF2WdAV6ovfFHySM4rPThEqMBi2iL6ee"
 
 [programs.mainnet]
