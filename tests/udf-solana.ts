@@ -6,19 +6,10 @@ import { PriceConsumerPull } from "../target/types/price_consumer_pull";
 import { utf8 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { Program, web3 } from "@coral-xyz/anchor";
 
-import { fetchPriceFeed, UpdateResponse } from "./util"
+import { fetchPriceFeed } from "./util"
 import BN from "bn.js";
 import { base64 } from "ethers/lib/utils";
 import * as assert from "node:assert";
-
-
-function decodeBase64(base64: string): string {
-    const buffer = Buffer.from(base64, 'base64');
-    const value = buffer.readBigUInt64BE(buffer.length - 8);
-    console.log("value", value);
-    return (value).toString();
-}
-
 
 const UDF_PROTOCOL_ID = Buffer.from(
     utf8.encode(
