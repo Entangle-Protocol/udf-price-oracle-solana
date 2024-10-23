@@ -5,10 +5,7 @@ declare_id!("GHzaqPXQUSQ4AD9c7w7dgA3LR4ztZYTDGKqs5E2JZTwJ");
 #[program]
 pub mod price_consumer_pull {
     use super::*;
-    use anchor_lang::solana_program::{
-        instruction::Instruction,
-        program::{get_return_data, invoke},
-    };
+    use anchor_lang::solana_program::{instruction::Instruction, program::invoke};
 
     pub fn verify_price<'info>(
         ctx: Context<'_, '_, '_, 'info, VerifyPrice<'info>>,
@@ -36,25 +33,13 @@ pub mod price_consumer_pull {
             data,
         };
         invoke(&ix, &accounts)?;
-        Ok(())
-    }
 
-    pub fn consume_price(ctx: Context<ConsumePrice>, asset: String) -> Result<()> {
-        let payload =
-            asset.try_to_vec().expect("Asset is expected be converted to the vec of bytes");
-        let data = [&sighash("global", "last_price")[..], &payload[..]].concat();
-        let ix = Instruction {
-            program_id: ctx.accounts.price_oracle.key(),
-            accounts: ctx.accounts.latest_update.to_account_metas(Some(false)),
-            data,
-        };
-        invoke(&ix, &[ctx.accounts.latest_update.to_account_info()])?;
-        let (_, data) = get_return_data().expect("Data expected to be gotten from price oracle");
-        let (price, timestamp) = <([u8; 32], u64)>::try_from_slice(&data)
-            .expect("Expected price and timeout to be deserialized with borsh");
-        let (_, price_right) = price.split_at(16);
+        let price_right = &last_price_message.data_feed.data[16..];
         let price = u128::try_from_slice(price_right).unwrap().to_be();
-        msg!("Price of: {} is: {} at: {}", asset, price, timestamp);
+        let timestamp = last_price_message.data_feed.timestamp;
+        let asset = String::from_utf8_lossy(&last_price_message.data_feed.data_key);
+        msg!("Verified price of: {} is: {} at: {}", asset, price, timestamp);
+
         Ok(())
     }
 }
