@@ -1,6 +1,6 @@
 <img src="doc/entangle.avif" alt="Entangle" style="width:100%;"/>
 
-## The Universal Data Feeds price oracle - solana
+# The Universal Data Feeds price oracle - solana
 
 This repository consists of both the program implementing the Entangle Universal Data Feeds (UDF) and a plugin used
 within
