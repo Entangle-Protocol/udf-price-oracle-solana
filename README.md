@@ -8,15 +8,11 @@ the [Pull Update Publisher](https://github.com/Entangle-Protocol/udf-update-publ
 as one out of the many blockchains are supposed to receive price feeds.
 
 - The [price oracle program](./programs/udf-solana) securely stores real-time data, validated by signatures from trusted
-  transmitters who gather it
-  from multiple sources.
+  transmitters who gather it from multiple sources.
 - The [Pull Update Publisher plugin](./price-publisher) is loaded as a shared library at runtime and
   communicates [with the main application](https://github.com/Entangle-Protocol/udf-update-publisher) through the
-  Foreign
-  Function Interface (FFI).
-  This plugin uses the received data feeds to construct, execute, and process the results of Solana transactions,
-  ensuring
-  that the data is properly transmitted and validated on the blockchain.
+  Foreign Function Interface (FFI). This plugin uses the received data feeds to construct, execute, and process the
+  results of Solana transactions, ensuring that the data is properly transmitted and validated on the blockchain.
 
 ## Table of Contents
 
