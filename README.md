@@ -20,6 +20,7 @@ that the data is properly transmitted and validated on the blockchain.
 ## Table of Contents
 
 - [Build and install](#build-and-install)
+    - [Build udf solana](#build-udf_solana)
 - [Testing](#testing)
 - [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
