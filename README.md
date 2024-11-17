@@ -21,7 +21,10 @@ that the data is properly transmitted and validated on the blockchain.
 
 - [Build and install](#build-and-install)
     - [Build udf solana](#build-udf_solana)
+    - [Building publisher lib](#building-publisher-lib)
 - [Testing](#testing)
+    - [Testing udf locally](#testing-udf-locally)
+    - [Checking accounts using anchor the CLI](#checking-accounts-using-anchor-cli)
 - [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
 - [License](LICENSE)
@@ -124,7 +127,7 @@ anchor idl init --provider.cluster localnet --provider.wallet keys/owner.json --
 anchor idl init --provider.cluster localnet --provider.wallet keys/owner.json --filepath target/idl/udf_solana.json 7HramSnctpbXqZ4SEzqvqteZdMdj3tEB2c9NT7egPQi7
 ```
 
-#### Checking accounts using anchor CLI
+### Checking accounts using anchor CLI
 
 In some cases, it can be helpful to verify whether the accounts specified in the Solana programs are initialized
 correctly.
@@ -152,4 +155,3 @@ anchor account --provider.cluster localnet  --provider.wallet keys/owner.json ud
     "dataTimestamp":1721300185
 }
 ```
-
