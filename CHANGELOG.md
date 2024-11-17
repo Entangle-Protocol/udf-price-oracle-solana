@@ -1,5 +1,3 @@
-Вот исправленный `CHANGELOG.md`, где каждая версия имеет уникальные изменения:
-
 ## v1.0.0 - 2024-11-17
 
 Initial release with basic functionality for deploying and testing UDF Solana and price consumer programs.
