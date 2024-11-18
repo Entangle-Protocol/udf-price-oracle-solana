@@ -30,6 +30,7 @@ as one out of the many blockchains are supposed to receive price feeds.
     - [Checking accounts using anchor the CLI](#checking-accounts-using-anchor-cli)
 - [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
 - [License](LICENSE)
 
 ## Build and install
