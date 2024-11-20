@@ -25,7 +25,11 @@ pub mod price_consumer {
             .expect("Expected price and timeout to be deserialized with borsh");
         let (_, price_right) = price.split_at(16);
         let price = u128::try_from_slice(price_right).unwrap().to_be();
-        msg!("Price of: {} is: {} at: {}", asset, price, timestamp);
+        emit!(ConsumePriceEvent {
+            asset: asset.split_once('\0').map_or(asset.clone(), |res| res.0.into()),
+            price,
+            timestamp,
+        });
         Ok(())
     }
 }
@@ -57,4 +61,11 @@ pub struct ConsumePrice<'info> {
     /// CHECK: This account is derived using specific seeds, including the asset. Ensure the seeds match the provided asset to trust the account.
     #[account(seeds = [ROOT, b"LAST_UPDATE", UDF_PROTOCOL_ID, asset.as_bytes()], bump, seeds::program = price_oracle)]
     latest_update: UncheckedAccount<'info>,
+}
+
+#[event]
+struct ConsumePriceEvent {
+    asset: String,
+    price: u128,
+    timestamp: u64,
 }
