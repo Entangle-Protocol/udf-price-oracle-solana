@@ -3,11 +3,15 @@ use sha3::Digest;
 pub type Hash = [u8; 32];
 
 pub fn keccak256<T: AsRef<[u8]>>(input: T) -> Hash {
-    let mut output = [0u8; 32];
+    keccak256_batch([input])
+}
+
+pub fn keccak256_batch<T: AsRef<[u8]>, I: IntoIterator<Item = T>>(inputs: I) -> Hash {
     let mut hasher = sha3::Keccak256::new();
-    hasher.update(input.as_ref());
-    hasher.finalize_into((&mut output).into());
-    output
+    for input in inputs {
+        hasher.update(input);
+    }
+    hasher.finalize().into()
 }
 
 pub struct Keccak256;
