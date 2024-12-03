@@ -28,8 +28,8 @@ const CONSUMER_POOL_ROOT = utf8.encode("CONSUMER_PULL");
 const FinalizedSnapUrl = "https://pricefeed.entangle.fi";
 const FinalizedSourceID = "prices-feed1";
 
-type MultipleUpdateData = anchor.IdlTypes<UdfSolana>["MultipleUpdateData"];
-type LastPriceData = anchor.IdlTypes<UdfSolana>["LastPriceData"];
+type MultipleUpdateData = anchor.IdlTypes<UdfSolana>["MultipleUpdateMessage"];
+type LastPriceData = anchor.IdlTypes<UdfSolana>["LastPriceMessage"];
 type DataFeed = anchor.IdlTypes<UdfSolana>["DataFeed"];
 
 
