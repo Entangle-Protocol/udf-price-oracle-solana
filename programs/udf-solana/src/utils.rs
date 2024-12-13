@@ -1,6 +1,7 @@
-use anchor_lang::prelude::*;
-use anchor_lang::solana_program::secp256k1_recover::secp256k1_recover;
-use sha3::{Digest, Keccak256};
+use anchor_lang::{
+    prelude::*,
+    solana_program::{keccak, secp256k1_recover::secp256k1_recover},
+};
 
 use crate::data::TransmitterSignature;
 use crate::error::CustomError;
@@ -15,7 +16,7 @@ pub fn ecrecover(hash: &[u8], sig: &TransmitterSignature) -> anchor_lang::Result
 }
 
 pub fn derive_eth_address(public_key: &[u8]) -> EthAddress {
-    let hash = Keccak256::digest(&public_key[1..]);
+    let hash = keccak::hash(&public_key[1..]).0;
     let mut bytes = [0u8; 20];
     bytes.copy_from_slice(&hash[12..]);
     bytes

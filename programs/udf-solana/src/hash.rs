@@ -1,13 +1,13 @@
-use sha3::Digest;
+use anchor_lang::solana_program::keccak;
 
 pub type Hash = [u8; 32];
 
 pub fn keccak256<T: AsRef<[u8]>>(input: T) -> Hash {
-    let mut output = [0u8; 32];
-    let mut hasher = sha3::Keccak256::new();
-    hasher.update(input.as_ref());
-    hasher.finalize_into((&mut output).into());
-    output
+    keccak::hash(input.as_ref()).0
+}
+
+pub fn keccak256_batch(inputs: &[&[u8]]) -> Hash {
+    keccak::hashv(inputs).0
 }
 
 pub struct Keccak256;
@@ -53,11 +53,5 @@ fn commutative_keccak256(a: [u8; 32], b: [u8; 32]) -> [u8; 32] {
 }
 
 fn efficient_keccak256(a: [u8; 32], b: [u8; 32]) -> [u8; 32] {
-    let mut hasher = sha3::Keccak256::new();
-    hasher.update(a);
-    hasher.update(b);
-    let result = hasher.finalize();
-    let mut hash = [0u8; 32];
-    hash.copy_from_slice(&result[..]);
-    hash
+    keccak::hashv(&[&a, &b]).0
 }

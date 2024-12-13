@@ -161,9 +161,7 @@ describe("udf-solana", () => {
             merkleRoot: Array.from(Buffer.from("07963960682c8bf05845f099078d6839bf6f6d6d159f36adc32dcff465c71b56", "hex"))
         }
 
-        const computeBudgetIx = web3.ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
         let tx = new web3.Transaction();
-        tx.add(computeBudgetIx);
 
         const udfIx = await udf_program.methods.updateMultipleAssets(dataFeedMessage)
             .accounts({
@@ -263,9 +261,7 @@ describe("udf-solana", () => {
             merkleRoot: Array.from(Buffer.from("b3dcf4e5fa1d50eda24c8fd2e35ec9fd2be13a4829bf2d41a240c96b28e1fece", "hex"))
         }
 
-        const computeBudgetIx = web3.ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
         let tx = new web3.Transaction();
-        tx.add(computeBudgetIx);
 
         const udfIx = await udf_program.methods.updateMultipleAssets(dataFeedMessage)
             .accounts({
@@ -332,9 +328,7 @@ describe("udf-solana", () => {
             merkleRoot: merkleRoot
         }
 
-        const computeBudgetIx = web3.ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
         let verifyPriceTx = new web3.Transaction();
-        verifyPriceTx.add(computeBudgetIx);
 
         let latestUpdatePda = web3.PublicKey.findProgramAddressSync(
             [UDF_ROOT, utf8.encode("LAST_UPDATE"), UDF_PROTOCOL_ID, dataKey1],
@@ -416,9 +410,7 @@ describe("udf-solana", () => {
             merkleRoot: Array.from(Buffer.from("9572fbbba8b66755f38c81e65ae0d13b087f31d86d5e746ca17e27bf2da38d06", "hex"))
         }
 
-        const computeBudgetIx = web3.ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
         let verifyPriceTx = new web3.Transaction();
-        verifyPriceTx.add(computeBudgetIx);
         // console.log("publisher:", publisher.publicKey.toBase58())
         // console.log("price oracle:", udf_program.programId.toBase58())
         // console.log("protocol info: ", udfProtocolInfo.toBase58())
