@@ -5177,7 +5177,6 @@ dependencies = [
  "hash-db",
  "hex",
  "log",
- "sha3 0.10.8",
 ]
 
 [[package]]

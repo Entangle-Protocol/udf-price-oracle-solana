@@ -24,4 +24,3 @@ derive_more = "0.99"
 hash-db = { version = "0.16", default-features = false }
 hex = "0.4"
 log = "0.4.22"
-sha3 = { version = "0.10.6", default-features = false }

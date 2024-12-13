@@ -15,7 +15,10 @@ use data::{
     TransmitterSignature,
 };
 
-use crate::{error::CustomError, hash::keccak256};
+use crate::{
+    error::CustomError,
+    hash::{keccak256, keccak256_batch},
+};
 
 declare_id!("7HramSnctpbXqZ4SEzqvqteZdMdj3tEB2c9NT7egPQi7");
 
@@ -208,9 +211,8 @@ fn is_consensus_reached(
     signatures: Vec<TransmitterSignature>,
     protocol_info: &ProtocolInfo,
 ) -> Result<bool> {
-    let mut merkle_root_bytes = b"\x19Ethereum Signed Message:\n32".to_vec();
-    merkle_root_bytes.extend(merkle_root.to_vec());
-    let hash_to_recover_sig: [u8; 32] = keccak256(merkle_root_bytes);
+    let hash_to_recover_sig: [u8; 32] =
+        keccak256_batch(&[b"\x19Ethereum Signed Message:\n32", &merkle_root]);
     let allowed_transmitters = protocol_info.transmitters();
 
     let mut unique_signers = vec![];
